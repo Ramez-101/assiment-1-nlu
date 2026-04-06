@@ -1,0 +1,50 @@
+{
+    "What is pragmatics?": {
+        "prompt": "Title: Ex 1\n\nBackground: Context 1\n\nQ: What is testing?\n\nA: Testing is testing.\n\nTitle: Ex 2\n\nBackground: Context 2\n\nQ: Example 2?\n\nA: Answer 2.\n\nTitle: Linguistics\n\nBackground: Pragmatics is the study of language use in context.\n\nQ: What is pragmatics?\n\nA:",
+        "generated_answer": "AI generated dummy answer.",
+        "generated_answer_probs": [
+            0.9,
+            0.95
+        ],
+        "generated_answer_tokens": [
+            "AI",
+            " Answer"
+        ]
+    },
+    "Who is Bert?": {
+        "prompt": "Title: Ex 1\n\nBackground: Context 1\n\nQ: What is testing?\n\nA: Testing is testing.\n\nTitle: Ex 2\n\nBackground: Context 2\n\nQ: Example 2?\n\nA: Answer 2.\n\nTitle: Linguistics\n\nBackground: Pragmatics is the study of language use in context.\n\nQ: Who is Bert?\n\nA:",
+        "generated_answer": "AI generated dummy answer.",
+        "generated_answer_probs": [
+            0.9,
+            0.95
+        ],
+        "generated_answer_tokens": [
+            "AI",
+            " Answer"
+        ]
+    },
+    "When was Stanford University founded?": {
+        "prompt": "Title: Ex 1\n\nBackground: Context 1\n\nQ: What is testing?\n\nA: Testing is testing.\n\nTitle: Ex 2\n\nBackground: Context 2\n\nQ: Example 2?\n\nA: Answer 2.\n\nTitle: Linguistics\n\nBackground: Pragmatics is the study of language use in context.\n\nQ: When was Stanford University founded?\n\nA:",
+        "generated_answer": "AI generated dummy answer.",
+        "generated_answer_probs": [
+            0.9,
+            0.95
+        ],
+        "generated_answer_tokens": [
+            "AI",
+            " Answer"
+        ]
+    },
+    "How long is Moby Dick?": {
+        "prompt": "Title: Ex 1\n\nBackground: Context 1\n\nQ: What is testing?\n\nA: Testing is testing.\n\nTitle: Ex 2\n\nBackground: Context 2\n\nQ: Example 2?\n\nA: Answer 2.\n\nTitle: Linguistics\n\nBackground: Pragmatics is the study of language use in context.\n\nQ: How long is Moby Dick?\n\nA:",
+        "generated_answer": "AI generated dummy answer.",
+        "generated_answer_probs": [
+            0.9,
+            0.95
+        ],
+        "generated_answer_tokens": [
+            "AI",
+            " Answer"
+        ]
+    }
+}

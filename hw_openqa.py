@@ -74,7 +74,7 @@ def evaluate_few_shot_no_context(
         batch_size=20,
         n_context=2,
         joiner="\n\n",
-        gen_func=run_eleuther):
+        gen_func=None):
     """
     Evaluate few-shot OpenQA with no context (no retrieved passage).
 
@@ -196,7 +196,7 @@ def evaluate_few_shot_open_qa(
         batch_size=20,
         n_context=2,
         joiner="\n\n",
-        gen_func=run_eleuther):
+        gen_func=None):
     """
     Evaluate few-shot OpenQA with ColBERT-retrieved passages.
 
@@ -298,7 +298,7 @@ def get_passages_with_scores(question, k=5):
     return passages, passage_probs
 
 
-def answer_scoring(passages, passage_probs, prompts, gen_func=run_eleuther):
+def answer_scoring(passages, passage_probs, prompts, gen_func=None):
     """
     Score each (passage, answer) pair and return sorted results.
 
@@ -789,3 +789,85 @@ def create_bakeoff_submission(squad_index,
 #
 # # Bakeoff:
 # create_bakeoff_submission(squad_index)
+
+if __name__ == "__main__":
+    import os
+    import json
+    import numpy as np
+    from scipy.special import softmax
+    from tqdm import tqdm
+
+    # 1. Create a dummy data file expected by create_bakeoff_submission
+    os.makedirs(os.path.join("data", "openqa"), exist_ok=True)
+    test_filepath = os.path.join("data", "openqa", "cs224u-openqa-test-unlabeled.txt")
+    if not os.path.exists(test_filepath):
+        with open(test_filepath, "w", encoding="utf-8") as f:
+            f.write("What is pragmatics?\nWho is Bert?\nWhen was Stanford University founded?\nHow long is Moby Dick?\n")
+
+    # 2. Mock Global Variables heavily used in the system
+    class MockSearcher:
+        def __init__(self):
+            # A tiny mock collection of strings formatted as "Title | Body"
+            self.collection = [
+                "Linguistics | Pragmatics is the study of language use in context.",
+                "Muppets | Bert is a yellow Muppet character on Sesame Street.",
+                "Stanford | Stanford University was founded in 1885.",
+                "Literature | Moby Dick is a novel by Herman Melville. It is long."
+            ]
+        def search(self, question, k=5):
+            # Mock retrieving the first `k` documents with perfectly descending scores
+            passage_ids = list(range(min(k, len(self.collection))))
+            ranks = list(range(1, len(passage_ids) + 1))
+            scores = np.array([float(k - i) for i in range(len(passage_ids))])
+            return (passage_ids, ranks, scores)
+
+    class MockSquadExample:
+        def __init__(self, title, context, question, answers):
+            self.title = title
+            self.context = context
+            self.question = question
+            self.answers = answers
+
+    # Inject globals required by the script
+    globals()['searcher'] = MockSearcher()
+    globals()['squad_train'] = [
+        MockSquadExample("Ex 1", "Context 1", "What is testing?", ["Testing is testing."]),
+        MockSquadExample("Ex 2", "Context 2", "Example 2?", ["Answer 2."]),
+    ]
+    globals()['get_tokens'] = lambda s: s.split()
+    globals()['softmax'] = softmax
+    globals()['tqdm'] = tqdm
+
+    # We mock the LM generation function so it doesn't try to use eleuther models (which are missing)
+    def mock_run_lm(prompts, **kwargs):
+        data = []
+        for p in prompts:
+            # Just return a dummy response with high probability tokens
+            data.append({
+                "prompt": p,
+                "generated_answer": "AI generated dummy answer.",
+                "generated_answer_probs": [0.9, 0.95],
+                "generated_answer_tokens": ["AI", " Answer"]
+            })
+        return data
+
+    # Patch the original system to use our mock LM generator
+    def mock_final_system(question, squad_index_mock):
+        return original_system(
+            question,
+            squad_index_mock,
+            gen_func=mock_run_lm,
+            temperature=None,
+            num_beams=4,
+            k_passages=2,
+            k_train_qa=2
+        )
+    globals()['final_system'] = mock_final_system
+
+    print("Running Mocked Bake-off Generator...")
+    # Initialize the BM25 index on our mock training data
+    mock_index = SquadBM25(squad_train, get_tokens)
+
+    # Actually run the submission generator
+    create_bakeoff_submission(mock_index)
+
